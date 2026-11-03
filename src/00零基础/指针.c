@@ -1,8 +1,7 @@
 //
 // Created by Roncy on 2026/10/31.
 //
-#include <stdio.h>
-#include "total.h"
+#include "../00utils/total.h"
 
 /*
  *      我们在理解指针的时候看到*这个符号，不要整体理解*p，而是去理解这是一个标记，
