@@ -2,7 +2,7 @@
 // Created by Roncy on 2026/10/31.
 //
 #include <malloc.h>
-#include "../00utils/total.h"
+#include "total.h"
 
 typedef struct LNode {
     int data;

@@ -2,7 +2,7 @@
 // Created by Roncy on 2026/11/1.
 //
 #include <malloc.h>
-#include "../00utils/total.h"
+#include "total.h"
 
 // 栈的结构体
 typedef struct LinkStack {

@@ -2,7 +2,7 @@
 // Created by Roncy on 2026/11/2.
 //
 #include <malloc.h>
-#include "../00utils/total.h"
+#include "total.h"
 
 // 数组来实现，牺牲一个数组空间来做队列
 typedef struct Queue1 {
@@ -15,8 +15,14 @@ typedef struct Queue1 {
 // 创建队列
 Queue1 *createQueue(int size) {
     if (size < 2) return NULL;
-    Queue1 *queue1 = nullptr;
+    // 先给结构体本身分配内存（原先漏了这步，queue1 是空指针，往下赋值必崩）
+    Queue1 *queue1 = (Queue1 *) malloc(sizeof(Queue1));
+    if (!queue1) return NULL;
     queue1->data = (int *) malloc(sizeof(int) * size);
+    if (!queue1->data) {
+        free(queue1);
+        return NULL;
+    }
     queue1->front = 0; // 头
     queue1->rear = 0; // 尾
     queue1->maxSize = size;
@@ -41,7 +47,7 @@ boolean enQueue(Queue1 *queue1, int data) {
 // 出队
 boolean deQueue(Queue1 *queue1, int *data) {
     if (queueIsEmpty(queue1)) return false;
-    *data = queue1->data[queue1->rear];
+    *data = queue1->data[(queue1->rear + 1) % queue1->maxSize];
     queue1->rear = (queue1->rear + 1) % queue1->maxSize;
     return true;
 }
@@ -49,7 +55,7 @@ boolean deQueue(Queue1 *queue1, int *data) {
 // 读队列首元素
 boolean getHead(Queue1 *queue1, int *data) {
     if (queueIsEmpty(queue1)) return false;
-    *data = queue1->data[queue1->rear];
+    *data = queue1->data[(queue1->rear + 1) % queue1->maxSize];
     return true;
 }
 
@@ -79,5 +85,6 @@ int main() {
     }
 
     free(queue1->data);
+    free(queue1);
     return 0;
 }
