@@ -1,7 +1,6 @@
 //
 // Created by Roncy on 2026/10/31.
 //
-#include <malloc.h>
 #include "total.h"
 
 //动态线性表

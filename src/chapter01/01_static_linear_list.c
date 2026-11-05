@@ -1,7 +1,6 @@
 //
 // Created by Roncy on 2026/10/30.
 //
-
 #include <stdio.h>
 // 静态线性表
 #define MaxSize 50

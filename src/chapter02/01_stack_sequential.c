@@ -1,7 +1,6 @@
 //
 // Created by Roncy on 2026/11/1.
 //
-#include <malloc.h>
 #include "total.h"
 /*
  * 栈的指针可以选择初始化的时候指向-1或者0,

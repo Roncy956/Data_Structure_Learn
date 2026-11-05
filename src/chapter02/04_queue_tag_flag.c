@@ -1,16 +1,16 @@
 //
 // Created by Roncy on 2026/11/2.
 //
-#include <malloc.h>
 #include "total.h"
 
-// 数组来实现，牺牲一个数组空间来做队列
+// 数组来实现，通过一个tag标签来判断空队列和满队列
 typedef struct QueueTag {
     int *data;
     int front;
     int rear;
     int maxSize;
-    int len;
+    // 初始为true，入队列操作变为false，出队列操作变为true
+    boolean isOut;
 } QueueTag;
 
 // 创建队列
@@ -27,22 +27,26 @@ QueueTag *createQueue(int size) {
     queueTag->front = 0; // 头
     queueTag->rear = 0; // 尾
     queueTag->maxSize = size;
-    queueTag->len = 0;
+    queueTag->isOut = true;
     return queueTag;
 }
 
 // 判断队列为空，头=尾则为空
 boolean queueIsEmpty(QueueTag *queueTag) {
-    return queueTag->len == 0;
+    return queueTag->front == queueTag->rear && queueTag->isOut;
 }
 
 // 入队
 boolean enQueue(QueueTag *queueTag, int data) {
-    // 头指针加一对最大值取模等于尾指针，则队列满了。模运算优先级高于加减运算
-    if (queueTag->len == queueTag->maxSize) return false;
-    // 前指针加一取模赋值
-    queueTag->front = (queueTag->front + 1) % queueTag->maxSize;
+    // 两指针相同且tag不为false
+    if (queueTag->front == queueTag->rear && !queueTag->isOut) return false;
+    // 指针加一取模
     queueTag->data[queueTag->front] = data;
+    queueTag->front = (queueTag->front + 1) % queueTag->maxSize;
+
+    // 添加了元素，tag就不为false了
+    queueTag->isOut = false;
+
     return true;
 }
 
@@ -50,45 +54,52 @@ boolean enQueue(QueueTag *queueTag, int data) {
 boolean deQueue(QueueTag *queueTag, int *data) {
     // 如果为空，则返回false
     if (queueIsEmpty(queueTag)) return false;
-    *data = queueTag->data[(queueTag->rear + 1) % queueTag->maxSize];
-    queueTag->rear = (queueTag->rear + 1) % queueTag->maxSize;
+    // 先出队再加一
+    *data = queueTag->data[queueTag->rear];
+    queueTag->rear = ((queueTag->rear + 1) % queueTag->maxSize);
+
+
+    // 出队了，isOut改为true；
+    queueTag->isOut = true;
+
     return true;
 }
 
 // 读队列首元素
-boolean getHead(QueueTag *queue1, int *data) {
+boolean getHead(QueueTag *queueTag, int *data) {
     // 如果为空，返回false
-    if (queueIsEmpty(queue1)) return false;
-    *data = queue1->data[(queue1->rear + 1) % queue1->maxSize];
+    if (queueIsEmpty(queueTag)) return false;
+    *data = queueTag->data[queueTag->rear];
     return true;
 }
 
 int main() {
-    QueueTag *queue1 = createQueue(20);
+    QueueTag *queueTag = createQueue(20);
+    if (!queueTag) return false;
 
     // 判断是否为空
-    printf("Queue is empty = %d\n", queueIsEmpty(queue1));
+    printf("Queue is empty = %d\n", queueIsEmpty(queueTag));
 
     // 入队
     for (int i = 0; i < 10; ++i) {
-        enQueue(queue1, i + 1);
+        enQueue(queueTag, i + 1);
     }
 
     // 读元素但不出队
     int data;
-    getHead(queue1, &data);
+    getHead(queueTag, &data);
     printf("Read queue = %d\n", data);
 
     // 判断是否为空
-    printf("Queue is empty = %d\n", queueIsEmpty(queue1));
+    printf("Queue is empty = %d\n", queueIsEmpty(queueTag));
 
     // 出队
     for (int i = 0; i < 10; ++i) {
-        deQueue(queue1, &data);
+        deQueue(queueTag, &data);
         printf("Pop queue = %d\n", data);
     }
 
-    free(queue1->data);
-    free(queue1);
+    free(queueTag->data);
+    free(queueTag);
     return 0;
 }

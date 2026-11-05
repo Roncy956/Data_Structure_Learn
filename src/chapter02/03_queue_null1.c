@@ -1,9 +1,11 @@
 //
 // Created by Roncy on 2026/11/2.
 //
-#include <malloc.h>
 #include "total.h"
 
+/*
+ * 队列，前进后出，统一先读写再加
+ */
 // 数组来实现，牺牲一个数组空间来做队列
 typedef struct Queue1 {
     int *data;
@@ -39,15 +41,15 @@ boolean enQueue(Queue1 *queue1, int data) {
     // 头指针加一对最大值取模等于尾指针，则队列满了。模运算优先级高于加减运算
     if ((queue1->front + 1) % queue1->maxSize == queue1->rear) return false;
     // 前指针加一取模赋值
-    queue1->front = (queue1->front + 1) % queue1->maxSize;
     queue1->data[queue1->front] = data;
+    queue1->front = (queue1->front + 1) % queue1->maxSize;
     return true;
 }
 
 // 出队
 boolean deQueue(Queue1 *queue1, int *data) {
     if (queueIsEmpty(queue1)) return false;
-    *data = queue1->data[(queue1->rear + 1) % queue1->maxSize];
+    *data = queue1->data[queue1->rear];
     queue1->rear = (queue1->rear + 1) % queue1->maxSize;
     return true;
 }
@@ -61,6 +63,7 @@ boolean getHead(Queue1 *queue1, int *data) {
 
 int main() {
     Queue1 *queue1 = createQueue(20);
+    if (!queue1) return 0;
 
     // 判断是否为空
     printf("Queue is empty = %d\n", queueIsEmpty(queue1));
