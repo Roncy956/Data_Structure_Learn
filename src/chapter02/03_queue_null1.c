@@ -4,13 +4,15 @@
 #include "total.h"
 
 /*
- * 队列，前进后出，统一先读写再加
+ *      队列，尾进头出，统一先读写再加
+ *      为什么尾进头出？想象成排队办理业务，后来的人排到后面去
+ * 前面的人办完了就离开队列了，后面的人补上。
  */
 // 数组来实现，牺牲一个数组空间来做队列
 typedef struct Queue1 {
     int *data;
-    int front;
     int rear;
+    int front;
     int maxSize;
 } Queue1;
 
@@ -25,39 +27,42 @@ Queue1 *createQueue(int size) {
         free(queue1);
         return NULL;
     }
-    queue1->front = 0; // 头
     queue1->rear = 0; // 尾
+    queue1->front = 0; // 头
     queue1->maxSize = size;
     return queue1;
 }
 
 // 判断队列为空，头=尾则为空
 boolean queueIsEmpty(Queue1 *queue1) {
-    return queue1->rear == queue1->front;
+    return queue1->front == queue1->rear;
 }
 
 // 入队
 boolean enQueue(Queue1 *queue1, int data) {
-    // 头指针加一对最大值取模等于尾指针，则队列满了。模运算优先级高于加减运算
-    if ((queue1->front + 1) % queue1->maxSize == queue1->rear) return false;
-    // 前指针加一取模赋值
-    queue1->data[queue1->front] = data;
-    queue1->front = (queue1->front + 1) % queue1->maxSize;
+    // 尾指针加一对最大值取模，结果等于头指针 front，则队列满（rear+1 撞上 front，说明只剩一个空位）
+    // 所以实际最多能存 maxSize-1 个元素，这就是"牺牲一个空间"的代价。
+    // 模运算优先级高于加减运算，不加括号会变成 rear + (1 % maxSize)
+    if ((queue1->rear + 1) % queue1->maxSize == queue1->front) return false;
+    // 尾指针先赋值再+1取模
+    queue1->data[queue1->rear] = data;
+    queue1->rear = (queue1->rear + 1) % queue1->maxSize;
     return true;
 }
 
 // 出队
 boolean deQueue(Queue1 *queue1, int *data) {
     if (queueIsEmpty(queue1)) return false;
-    *data = queue1->data[queue1->rear];
-    queue1->rear = (queue1->rear + 1) % queue1->maxSize;
+    // 先把头指针指向的元素读出来，再把头指针加一取模；顺序不能反，反了队头数据就丢了
+    *data = queue1->data[queue1->front];
+    queue1->front = (queue1->front + 1) % queue1->maxSize;
     return true;
 }
 
 // 读队列首元素
 boolean getHead(Queue1 *queue1, int *data) {
     if (queueIsEmpty(queue1)) return false;
-    *data = queue1->data[(queue1->rear + 1) % queue1->maxSize];
+    *data = queue1->data[(queue1->front) % queue1->maxSize];
     return true;
 }
 
